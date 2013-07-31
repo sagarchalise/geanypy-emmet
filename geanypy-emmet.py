@@ -6,34 +6,10 @@ import emmet
 from emmet.context import Context
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
-#~ _key_mod = namedtuple("KeyMod", 'KEY MOD')
-#~ 
-#~ _actions = { "expand_abbreviation": _key_mod(Gdk.KEY_e, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "expand_abbreviation_with_tab": _key_mod(Gdk.KEY_T, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "match_pair_inward": _key_mod(Gdk.KEY_L, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "match_pair_outward": _key_mod(Gdk.KEY_R, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "wrap_with_abbreviation": _key_mod(Gdk.KEY_q, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "prev_edit_point": _key_mod(Gdk.KEY_p, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "next_edit_point": _key_mod(Gdk.KEY_n, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "insert_formatted_newline": _key_mod(Gdk.KEY_l, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "select_line": _key_mod(Gdk.KEY_s, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "go_to_matching_pair": _key_mod(Gdk.KEY_m, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "merge_lines": _key_mod(Gdk.KEY_b, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "toggle_comment": _key_mod(Gdk.KEY_c, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "split_join_tag": _key_mod(Gdk.KEY_j, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "remove_tag": _key_mod(Gdk.KEY_r, Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK),
-	 #~ "increment_number_by_1": _key_mod(0, 0),
-	 #~ "increment_number_by_10": _key_mod(0, 0),
-	 #~ "increment_number_by_01": _key_mod(0, 0),
-	 #~ "decrement_number_by_1": _key_mod(0, 0),
-	 #~ "decrement_number_by_10": _key_mod(0, 0),
-	 #~ "decrement_number_by_01": _key_mod(0, 0),
-	#~ "evaluate_math_expression": _key_mod(0, 0)
-    #~ }
+
 actions = ("expand_abbreviation", "match_pair_inward", "match_pair_outward","wrap_with_abbreviation", "prev_edit_point", "next_edit_point", "insert_formatted_newline", "select_previous_item", "select_next_item", "go_to_matching_pair", "merge_lines", "toggle_comment", "split_join_tag", "remove_tag", "update_image_size", "evaluate_math_expression", "reflect_css_value", "insert_formatted_line_break_only", "encode_decode_data_url", "increment_number_by_1", "increment_number_by_10", "increment_number_by_01", "decrement_number_by_1", "decrement_number_by_10", "decrement_number_by_01")
 
 def create_action_label():
-    #labels = tuple()
     for action in actions:
         if action == "match_pair_outward":
             action = _("Match Tag Outward")
@@ -48,12 +24,12 @@ def create_action_label():
         elif action == "split_join_tag":
             action = _("Split or Join Tag")
         elif action == "encode_decode_data_url":
-            action = _("Encode/decode image to data:URL")
+            action = _("Encode/Decode image to data:URL")
+        elif action == "reflect_css_value":
+            action = _("Reflect CSS value")
         else:
             action = _(action.replace("_", " ").title())
         yield action
-        #labels += (action,)
-    #return labels
 
 actions_dict = dict(zip([label for label in create_action_label()], actions))
 
