@@ -5,7 +5,7 @@ geanypy-emmet
 
 
 ####Recommendations
-Please use [geanypy](geanypy/tree/gtk3) *Gtk3 Branch*
+Please use [geanypy](https://github.com/sagarchalise/geanypy/tree/gtk3) *Gtk3 Branch*
 
 You can get gtk2 as well gtk3 compatible codebase as well as keybinding support by default.
 
