@@ -43,22 +43,24 @@ var editorProxy = emmet.exec(function(require, _) {
 		},
 
 		replaceContent: function(value, start, end, noIndent) {
-            
-			if (_.isUndefined(end))
+            if (_.isUndefined(end))
 				end = _.isUndefined(start) ? this.getContent().length : start;
 			if (_.isUndefined(start)) start = 0;
-
-			// update tabstops: make sure all caret placeholder are unique
-			// by default, abbreviation parser generates all unlinked (un-mirrored)
-			// tabstops as ${0}, so we have upgrade all caret tabstops with unique
-			// positions but make sure that all other tabstops are not linked accidentally
-			//value = pyPreprocessText(value);
+            var sel_range = this.getSelectionRange();
             var cur_pos = this.getCaretPos();
             var index = value.indexOf('${0}');
             //
             value = require('utils').replaceUnescapedSymbol(value, '${0}', '');
+            if (sel_range.start === sel_range.end){
+                this.createSelection(start, end);
+            }
             var scintilla = getScintilla();
             scintilla.replace_sel(value);
+            // update tabstops: make sure all caret placeholder are unique
+			// by default, abbreviation parser generates all unlinked (un-mirrored)
+			// tabstops as ${0}, so we have upgrade all caret tabstops with unique
+			// positions but make sure that all other tabstops are not linked accidentally
+			//value = pyPreprocessText(value);
             this.setCaretPos(cur_pos+index);
 		},
 
