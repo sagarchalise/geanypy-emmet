@@ -1,8 +1,16 @@
+try:
+    from gi import pygtkcompat
+except ImportError:
+    pygtkcompat = None
+
+if pygtkcompat is not None:
+    pygtkcompat.enable() 
+    pygtkcompat.enable_gtk(version='3.0')
+
 import os
 from gettext import gettext as _
-from gi.repository import Gtk
+import gtk as Gtk
 import geany
-import emmet
 from emmet.context import Context
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -62,10 +70,10 @@ class EmmetPlugin(geany.Plugin):
 
     @staticmethod
     def prompt(title):
-        dialog = Gtk.Dialog(title, geany.main_widgets.window, Gtk.DialogFlags.DESTROY_WITH_PARENT or Gtk.DialogFlags.MODAL, (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-             Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+        dialog = Gtk.Dialog(title, geany.main_widgets.window, Gtk.DIALOG_DESTROY_WITH_PARENT | Gtk.DIALOG_MODAL, (Gtk.STOCK_CANCEL, Gtk.RESPONSE_REJECT,
+             Gtk.STOCK_OK, Gtk.RESPONSE_ACCEPT))
         dialog.set_default_size(300, -1)
-        dialog.set_default_response(Gtk.ResponseType.ACCEPT)
+        dialog.set_default_response(Gtk.RESPONSE_ACCEPT)
         content_area = dialog.get_content_area()
         entry = Gtk.Entry()
         vbox = Gtk.VBox(False, 0)
@@ -75,7 +83,7 @@ class EmmetPlugin(geany.Plugin):
         vbox.show_all()
         response = dialog.run()
         abbr = ''
-        if response == Gtk.ResponseType.ACCEPT:
+        if response == Gtk.RESPONSE_ACCEPT:
             abbr = entry.get_text()
         dialog.destroy()
         return abbr
