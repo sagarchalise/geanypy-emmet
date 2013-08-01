@@ -11,6 +11,6 @@ You can get gtk2 as well gtk3 compatible codebase as well as keybinding support 
 
 ####Installations
 
-* Copy emmet to PYTHONPATH { taken from https://github.com/sergeche/emmet-sublime }
-* Install PyV8 { https://github.com/emmetio/pyv8-binaries }
+* Copy emmet to PYTHONPATH **_Taken from [emmet-sublime](https://github.com/sergeche/emmet-sublime)_**
+* Install [PyV8](https://github.com/emmetio/pyv8-binaries)
 * Install geanypy-emmet.py and editor.js on $HOME/.config/geany/plugins/geanypy/plugins
