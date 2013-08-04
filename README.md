@@ -11,7 +11,9 @@ You can get gtk2 as well gtk3 compatible codebase as well as keybinding support 
 
 ####Installations
 
-* Install emmet folder and [PyV8](https://github.com/emmetio/pyv8-binaries) to geanypy library path OR on `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
+* Install emmet folder and [PyV8](https://github.com/emmetio/pyv8-binaries) to geanypy library path OR on Python site package directory:
+
+    `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
 
 _geanypy library path may be `/usr/local/lib/geany/geanypy` OR `/usr/lib/geany/geanypy` based on installation._
 
