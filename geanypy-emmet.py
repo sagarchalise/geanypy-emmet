@@ -62,7 +62,7 @@ class EmmetPlugin(geany.Plugin):
 
     @staticmethod
     def prompt(title):
-        dialog = Gtk.Dialog(title=title, parent=geany.main_widgets.window, flags=Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL, (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+        dialog = Gtk.Dialog(title=title, parent=geany.main_widgets.window, flags=Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL, buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
              Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
         dialog.set_default_size(300, -1)
         dialog.set_default_response(Gtk.ResponseType.ACCEPT)
