@@ -39,7 +39,7 @@ var editorProxy = emmet.exec(function(require, _) {
 
 		getCurrentLine: function() {
 			var scintilla = getScintilla();
-			return scintilla.get_current_line();
+			return scintilla.get_line(scintilla.get_current_line());
 		},
 
 		replaceContent: function(value, start, end, noIndent) {
