@@ -114,7 +114,7 @@ function pyGetSyntax() {
 	var scope = cur_doc_type;
     var syntax = 'html'
     if (scope == 'xml' || scope == 'xsl') {
-		syntax = 'xsl';
+		syntax = scope;
     }
     if(scope == 'css' || scope == 'less' || scope == 'sass'){
         syntax = 'css'
