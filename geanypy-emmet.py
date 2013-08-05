@@ -98,7 +98,7 @@ class EmmetPlugin(geany.Plugin):
                 'cur_doc_type': cur_file_type.lower() if cur_file_type != 'PHP' else 'html',
                 'prompt': EmmetPlugin.prompt
             }
-            ctx = Context(files=[os.path.join(BASE_PATH, 'editor.js')], contrib=contrib)
+            ctx = Context(files=[os.path.join(BASE_PATH, 'editor.js')], ext_path=BASE_PATH, contrib=contrib)
             with ctx.js() as c:
                 c.locals.pyRunAction(action)
 
