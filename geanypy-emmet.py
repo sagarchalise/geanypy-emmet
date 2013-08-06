@@ -65,11 +65,11 @@ class EmmetPlugin(geany.Plugin):
         imenu = Gtk.Menu()
         for label in create_action_label():
             menu_item = Gtk.MenuItem(label)
-            menu_item.connect("activate", self.on_action_item_activate, actions_dict[label])
+            menu_item.connect("activate", self.on_action_activate, actions_dict[label])
             menu_item.show()
             imenu.append(menu_item)
             try:
-                geany.bindings.register_binding("Emmet", label, self.on_key_activate, actions_dict[label])
+                geany.bindings.register_binding("Emmet", label, self.on_action_activate, actions_dict[label])
             except AttributeError:
                 geany.ui_utils.set_statusbar("GeanyPy was not compiled with keybindings support.")
         self.menu_item.set_submenu(imenu)
@@ -114,9 +114,6 @@ class EmmetPlugin(geany.Plugin):
             with ctx.js() as c:
                 c.locals.pySetupEditorProxy()
                 c.locals.pyRunAction(action)
-
-    def on_action_item_activate(self, data, action_key):
-        self.run_emmet_action(action_key)
         
-    def on_key_activate(self, key_id, name):
+    def on_action_activate(self, key_id, name):
         self.run_emmet_action(name)
