@@ -1,9 +1,12 @@
 function pySetupEditorProxy() {
 	editorProxy._syntax = cur_doc_type;
     require('utils').setCaretPlaceholder("%cursor%");
-	var indentation = "\t";
+	var ind = (cur_doc.editor.indent_prefs.type === 0) ? "\s" : "\t";
+    if(ind != "\t"){
+        require("utils").repeatString(" ", cur_doc.editor.indent_prefs.width)
+    }
 	var nl = cur_doc.editor.eol_char;
-	require('resources').setVariable('indentation', indentation);
+	require('resources').setVariable('indentation', ind);
 	require('resources').setVariable('newline', nl);
 }
 function getScintilla() {

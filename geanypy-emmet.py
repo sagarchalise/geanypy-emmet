@@ -14,6 +14,18 @@ import geany
 from emmet.context import Context
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
+def makedir(path):
+    path=os.path.abspath(path)
+    if os.path.isdir(path):
+        return True
+    else:
+        if makedir(os.path.dirname(path)):
+            os.makedirs(path)
+            return True
+
+BASE_PATH = os.path.abspath(os.path.dirname(__file__))
+EXT_PATH = os.path.join(BASE_PATH, 'emmet_ext')
+makedir(EXT_PATH)
 
 actions = ("expand_abbreviation", "match_pair_inward", "match_pair_outward","wrap_with_abbreviation", "prev_edit_point", "next_edit_point", "insert_formatted_newline", "select_previous_item", "select_next_item", "go_to_matching_pair", "merge_lines", "toggle_comment", "split_join_tag", "remove_tag", "update_image_size", "evaluate_math_expression", "reflect_css_value", "insert_formatted_line_break_only", "encode_decode_data_url", "increment_number_by_1", "increment_number_by_10", "increment_number_by_01", "decrement_number_by_1", "decrement_number_by_10", "decrement_number_by_01")
 
@@ -98,8 +110,9 @@ class EmmetPlugin(geany.Plugin):
                 'cur_doc_type': cur_file_type.lower() if cur_file_type != 'PHP' else 'html',
                 'prompt': EmmetPlugin.prompt
             }
-            ctx = Context(files=[os.path.join(BASE_PATH, 'editor.js')], ext_path=BASE_PATH, contrib=contrib)
+            ctx = Context(files=[os.path.join(BASE_PATH, 'editor.js')], ext_path=EXT_PATH, contrib=contrib)
             with ctx.js() as c:
+                c.locals.pySetupEditorProxy()
                 c.locals.pyRunAction(action)
 
     def on_action_item_activate(self, data, action_key):
