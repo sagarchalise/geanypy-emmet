@@ -35,6 +35,8 @@ def create_action_label():
             action = _("Match Tag Outward")
         elif action == "match_pair_inward":
             action = _("Match Tag Inward")
+        elif action == "matching_pair":
+            action = _("Go To Matching Pair")
         elif action == "increment_number_by_01":
             action = _("Increment Number by 0.1")
         elif action == "decrement_number_by_01":
