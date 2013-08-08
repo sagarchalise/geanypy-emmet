@@ -13,7 +13,6 @@ import gtk as Gtk
 import geany
 from emmet.context import Context
 
-BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 def makedir(path):
     path=os.path.abspath(path)
     if os.path.isdir(path):
