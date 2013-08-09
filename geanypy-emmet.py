@@ -104,10 +104,11 @@ class EmmetPlugin(geany.Plugin):
     @staticmethod
     def run_emmet_action(action):
         file_types = ('HTML', 'PHP', 'XML', 'CSS')
-        cur_file_type = geany.document.get_current().file_type.name
+        cur_doc = geany.document.get_current()
+        cur_file_type = cur_doc.file_type.name
         if cur_file_type in file_types:
             contrib = {
-                'cur_doc': geany.document.get_current(),
+                'cur_doc': cur_doc,
                 'cur_doc_type': cur_file_type.lower() if cur_file_type != 'PHP' else 'html',
                 'prompt': EmmetPlugin.prompt
             }
