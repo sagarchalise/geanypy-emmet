@@ -3,11 +3,35 @@ function pySetupEditorProxy() {
     require('utils').setCaretPlaceholder("%cursor%");
 	var nl = cur_doc.editor.eol_char;
 	require('resources').setVariable('newline', nl);
+    var actions = require('actions');
+    var matchPairHighlight = function(editor) {
+        var matcher = require('htmlMatcher');
+		var content = String(editor.getContent());
+		var caretPos = editor.getCaretPos();
+		if (content.charAt(caretPos) == '<')
+            // looks like caret is outside of tag pair
+            caretPos++;
+        var tag = matcher.tag(content, caretPos);
+        if(tag){
+            if(tag.open.range.inside(caretPos)){
+                editor.setIndicator(tag.open.range);
+                if(tag.close){
+                    editor.setIndicator(tag.close.range);
+                }
+            }
+            else if(tag.close && tag.close.range.inside(caretPos)){
+                editor.setIndicator(tag.open.range);
+                editor.setIndicator(tag.close.range);
+            }
+            return true;
+        }
+        return false;
+    };
+    actions.add('highlight_tag', matchPairHighlight, {hidden: true});
 }
 function getScintilla() {
 	return cur_doc.editor.scintilla;
 }
-
 var editorProxy = emmet.exec(function(require, _) {
     return {
 		getSelectionRange: function() {
@@ -40,7 +64,7 @@ var editorProxy = emmet.exec(function(require, _) {
 
 		setCaretPos: function(pos){
             var scintilla = getScintilla();
-			scintilla.set_current_position(pos);
+			scintilla.set_current_position(pos, true);
 		},
 
 		getCurrentLine: function() {
@@ -94,7 +118,19 @@ var editorProxy = emmet.exec(function(require, _) {
 
 		getFilePath: function() {
 			return cur_doc.file_name;
-		}
+		},
+        setIndicator: function(range){
+            var geanyIndicators = [geanyIndicatorSearch, 1];
+            for(var i=0;i<geanyIndicators.length;i++){
+                var start = range.start;
+                var stop = range.end;
+                if(i == 1){
+                    start += 1;
+                    stop -= 1;
+                }
+                cur_doc.editor.indicator_set_on_range(geanyIndicators[i], start, stop);
+            }
+        },
 	};
 });
 
