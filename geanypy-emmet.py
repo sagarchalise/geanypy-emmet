@@ -15,12 +15,10 @@ from emmet.context import Context
 
 def makedir(path):
     path = os.path.abspath(path)
-    if os.path.isdir(path):
-        return True
-    else:
-        if makedir(os.path.dirname(path)):
-            os.makedirs(path)
-            return True
+    try:
+        os.makedirs(path)
+    except OSError as e:
+        return False
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 EXT_PATH = os.path.join(BASE_PATH, 'emmet_ext')
