@@ -3,6 +3,8 @@ geanypy-emmet
 
 [Emmet](http://emmet.io/) Plugin for geany based on geanypy.
 
+Plugin Base taken from https://github.com/sergeche/emmet-sublime which is used as submodule.
+
 
 ####Recommendations
 Please use [geanypy](https://github.com/sagarchalise/geanypy/tree/gtk3) *Gtk3 Branch*
@@ -11,7 +13,7 @@ Please use [geanypy](https://github.com/sagarchalise/geanypy/tree/gtk3) *Gtk3 Br
 
 ####Installations
 
-* Install emmet folder and [PyV8](https://github.com/emmetio/pyv8-binaries) to geanypy library path OR on Python site package directory:
+* Install `emmet` from `emmet_base` folder and [PyV8](https://github.com/emmetio/pyv8-binaries) to geanypy library path OR on Python site package directory:
 
     `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
 
