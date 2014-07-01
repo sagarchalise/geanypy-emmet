@@ -160,13 +160,9 @@ class Context():
 		return self._ext_path
 
 	def set_ext_path(self, val):
-		try:
-			if val and val[:1] == '~':
-				val = os.path.expanduser(val)
-
+		if val:
+			val = os.path.expanduser(val)
 			val = os.path.abspath(val)
-		except Exception as e:
-			return
 
 		if val == self._ext_path:
 			return
@@ -176,12 +172,12 @@ class Context():
 
 	def load_extensions(self, path=None):
 		if path is None:
-			path = self._ext_path;
+			path = self.get_ext_path();
 
 		if path and os.path.isdir(path):
 			ext_files = []
-			self.log('Loading Emmet extensions from %s' % self._ext_path)
-			for dirname, dirnames, filenames in os.walk(self._ext_path):
+			self.log('Loading Emmet extensions from %s' % path)
+			for dirname, dirnames, filenames in os.walk(path):
 				for filename in filenames:
 					if filename[0] != '.':
 						ext_files.append(os.path.join(dirname, filename))
@@ -237,6 +233,7 @@ class Context():
 			with self._ctx as ctx:
 				# load default snippets
 				ctx.locals.pyLoadSystemSnippets(self.read_js_file(make_path('snippets.json')))
+				ctx.locals.pyLoadCIU(self.read_js_file(make_path('caniuse.json')))
 
 				# expose some methods
 				ctx.locals.log = js_log
