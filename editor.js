@@ -1,11 +1,11 @@
 function pySetupEditorProxy() {
 	editorProxy._syntax = cur_doc_type;
-    require('utils').setCaretPlaceholder("%cursor%");
+    require('utils/common').setCaretPlaceholder("%cursor%");
 	var nl = cur_doc.editor.eol_char;
-	require('resources').setVariable('newline', nl);
-    var actions = require('actions');
+	require('assets/resources').setVariable('newline', nl);
+    var actions = require('action/main');
     var matchPairHighlight = function(editor) {
-        var matcher = require('htmlMatcher');
+        var matcher = require('assets/htmlMatcher');
 		var content = String(editor.getContent());
 		var caretPos = editor.getCaretPos();
 		if (content.charAt(caretPos) == '<')
@@ -82,7 +82,7 @@ var editorProxy = emmet.exec(function(require, _) {
             }
             // indent new value
 			if (!noIndent) {
-                var utils = require('utils');
+                var utils = require('utils/common');
 				value = utils.padString(value, utils.getLinePadding(this.getCurrentLine()));
 			}
             var scintilla = getScintilla();
@@ -97,7 +97,7 @@ var editorProxy = emmet.exec(function(require, _) {
 		},
 
 		getSyntax: function() {
-			return require('actionUtils').detectSyntax(this, cur_doc_type);;
+			return require('utils/action').detectSyntax(this, cur_doc_type);;
 		},
 
 		getProfileName: function() {
@@ -138,5 +138,5 @@ function require(name) {
 	return emmet.require(name);
 }
 function pyDetectProfile(argument) {
-	return require('actionUtils').detectProfile(editorProxy);
+	return require('utils/action').detectProfile(editorProxy);
 }
