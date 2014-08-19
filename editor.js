@@ -80,11 +80,6 @@ var editorProxy = emmet.exec(function(require, _) {
             if (sel_range.start === sel_range.end){
                 this.createSelection(start, end);
             }
-            // indent new value
-			if (!noIndent) {
-                var utils = require('utils/common');
-				value = utils.padString(value, utils.getLinePadding(this.getCurrentLine()));
-			}
             var scintilla = getScintilla();
             scintilla.replace_sel("");
             cur_doc.editor.insert_snippet(start, value);
