@@ -1,17 +1,18 @@
+var actionUtils = emmet.utils.action;
 function pySetupEditorProxy() {
 	editorProxy._syntax = cur_doc_type;
-    require('utils/common').setCaretPlaceholder("%cursor%");
+    emmet.utils.common.setCaretPlaceholder("%cursor%");
 	var nl = cur_doc.editor.eol_char;
-	require('assets/resources').setVariable('newline', nl);
-    var actions = require('action/main');
+	emmet.resources.setVariable('newline', nl);
+    var actions = emmet.require('action/main.js');
     var matchPairHighlight = function(editor) {
-        var matcher = require('assets/htmlMatcher');
+    
 		var content = String(editor.getContent());
 		var caretPos = editor.getCaretPos();
 		if (content.charAt(caretPos) == '<')
             // looks like caret is outside of tag pair
             caretPos++;
-        var tag = matcher.tag(content, caretPos);
+        var tag = emmet.htmlMatcher.tag(content, caretPos);
         if(tag){
             if(tag.open.range.inside(caretPos)){
                 editor.setIndicator(tag.open.range);
@@ -32,8 +33,9 @@ function pySetupEditorProxy() {
 function getScintilla() {
 	return cur_doc.editor.scintilla;
 }
-var editorProxy = emmet.exec(function(require, _) {
-    return {
+var editorProxy = //emmet.exec(function(require, _) {
+    //return
+    {
 		getSelectionRange: function() {
 			var scintilla = getScintilla();
 			return {
@@ -73,9 +75,9 @@ var editorProxy = emmet.exec(function(require, _) {
 		},
 
 		replaceContent: function(value, start, end, noIndent) {
-            if (_.isUndefined(end))
-				end = _.isUndefined(start) ? this.getContent().length : start;
-			if (_.isUndefined(start)) start = 0;
+            if (typeof end === 'undefined')
+		end = typeof start === 'undefined' ? this.getContent().length : start;
+	    if (typeof start === 'undefined') start = 0;
             var sel_range = this.getSelectionRange();
             if (sel_range.start === sel_range.end){
                 this.createSelection(start, end);
@@ -92,7 +94,7 @@ var editorProxy = emmet.exec(function(require, _) {
 		},
 
 		getSyntax: function() {
-			return require('utils/action').detectSyntax(this, cur_doc_type);;
+			return emmet.utils.action.detectSyntax(this, cur_doc_type);;
 		},
 
 		getProfileName: function() {
@@ -100,7 +102,7 @@ var editorProxy = emmet.exec(function(require, _) {
 		},
 
 		prompt: function(title) {
-            if (_.isUndefined(title)){
+            if (typeof title === 'undefined'){
                 var title = 'Enter Abbreviation'; 
             }
 			return prompt(title);
@@ -127,11 +129,8 @@ var editorProxy = emmet.exec(function(require, _) {
             }
         },
 	};
-});
+//});
 
-function require(name) {
-	return emmet.require(name);
-}
-function pyDetectProfile(argument) {
-	return require('utils/action').detectProfile(editorProxy);
+function pyDetectProfile(syntax) {
+	return actionUtils.detectProfile(editorProxy, syntax);
 }
