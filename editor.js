@@ -94,7 +94,7 @@ var editorProxy = //emmet.exec(function(require, _) {
 		},
 
 		getSyntax: function() {
-			return emmet.utils.action.detectSyntax(this, cur_doc_type);;
+			return actionUtils.detectSyntax(this, cur_doc_type);;
 		},
 
 		getProfileName: function() {
