@@ -1,12 +1,3 @@
-try:
-    from gi import pygtkcompat
-except ImportError:
-    pygtkcompat = None
-
-if pygtkcompat is not None:
-    pygtkcompat.enable() 
-    pygtkcompat.enable_gtk(version='3.0')
-
 import os
 from gettext import gettext as _
 import gtk as Gtk
