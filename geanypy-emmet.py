@@ -1,6 +1,6 @@
 import os
 from gettext import gettext as _
-import gtk as Gtk
+from gi.repository import Gtk
 import geany
 from emmet.context import Context
 
@@ -74,10 +74,10 @@ class EmmetPlugin(geany.Plugin):
 
     @staticmethod
     def prompt(title):
-        dialog = Gtk.Dialog(title, geany.main_widgets.window, Gtk.DIALOG_DESTROY_WITH_PARENT | Gtk.DIALOG_MODAL, (Gtk.STOCK_CANCEL, Gtk.RESPONSE_REJECT,
-             Gtk.STOCK_OK, Gtk.RESPONSE_ACCEPT))
+        dialog = Gtk.Dialog(title, geany.main_widgets.window, Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL, (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+             Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
         dialog.set_default_size(300, -1)
-        dialog.set_default_response(Gtk.RESPONSE_ACCEPT)
+        dialog.set_default_response(Gtk.ResponseType.ACCEPT)
         content_area = dialog.get_content_area()
         entry = Gtk.Entry()
         vbox = Gtk.VBox(False, 0)
@@ -87,7 +87,7 @@ class EmmetPlugin(geany.Plugin):
         vbox.show_all()
         response = dialog.run()
         abbr = ''
-        if response == Gtk.RESPONSE_ACCEPT:
+        if response == Gtk.ResponseType.ACCEPT:
             abbr = entry.get_text()
         dialog.destroy()
         return abbr
