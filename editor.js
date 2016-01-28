@@ -92,10 +92,10 @@ var editorProxy = {
 	return pyDetectProfile();
     },
     prompt: function(title) {
-	if (typeof title === 'undefined'){
-	    var title = 'Enter Abbreviation'; 
-	}
-	return prompt(title);
+	// if (typeof title === 'undefined'){
+	    // var title = 'Enter Abbreviation';
+	// }
+	// return prompt(title);
     },
     getSelection: function() {
 	var scintilla = getScintilla();

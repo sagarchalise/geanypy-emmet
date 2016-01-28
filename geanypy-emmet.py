@@ -15,7 +15,7 @@ BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 EXT_PATH = os.path.join(BASE_PATH, 'emmet_ext')
 makedir(EXT_PATH)
 
-actions = ("expand_abbreviation", "match_pair_inward", "match_pair_outward","wrap_with_abbreviation", "prev_edit_point", "next_edit_point", "insert_formatted_newline", "select_previous_item", "select_next_item", "matching_pair", "merge_lines", "toggle_comment", "split_join_tag", "remove_tag", "update_image_size", "evaluate_math_expression", "reflect_css_value", "insert_formatted_line_break_only", "encode_decode_data_url", "increment_number_by_1", "increment_number_by_10", "increment_number_by_01", "decrement_number_by_1", "decrement_number_by_10", "decrement_number_by_01")
+actions = ("expand_abbreviation", "match_pair_inward", "match_pair_outward", "prev_edit_point", "next_edit_point", "insert_formatted_newline", "select_previous_item", "select_next_item", "matching_pair", "merge_lines", "toggle_comment", "split_join_tag", "remove_tag", "update_image_size", "evaluate_math_expression", "reflect_css_value", "insert_formatted_line_break_only", "encode_decode_data_url", "increment_number_by_1", "increment_number_by_10", "increment_number_by_01", "decrement_number_by_1", "decrement_number_by_10", "decrement_number_by_01")
 
 def create_action_label():
     for action in actions:
@@ -72,25 +72,25 @@ class EmmetPlugin(geany.Plugin):
     def cleanup(self):
         self.menu_item.destroy()
 
-    @staticmethod
-    def prompt(title):
-        dialog = Gtk.Dialog(title, geany.main_widgets.window, Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL, (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-             Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
-        dialog.set_default_size(300, -1)
-        dialog.set_default_response(Gtk.ResponseType.ACCEPT)
-        content_area = dialog.get_content_area()
-        entry = Gtk.Entry()
-        vbox = Gtk.VBox(False, 0)
-        vbox.pack_start(entry, True, True, 0)
-        vbox.set_border_width(12)
-        content_area.add(vbox)
-        vbox.show_all()
-        response = dialog.run()
-        abbr = ''
-        if response == Gtk.ResponseType.ACCEPT:
-            abbr = entry.get_text()
-        dialog.destroy()
-        return abbr
+    # @staticmethod
+    # def prompt(title):
+        # dialog = Gtk.Dialog(title, geany.main_widgets.window, Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL, (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+             # Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+        # dialog.set_default_size(300, -1)
+        # dialog.set_default_response(Gtk.ResponseType.ACCEPT)
+        # content_area = dialog.get_content_area()
+        # entry = Gtk.Entry()
+        # vbox = Gtk.VBox(False, 0)
+        # vbox.pack_start(entry, True, True, 0)
+        # vbox.set_border_width(12)
+        # content_area.add(vbox)
+        # vbox.show_all()
+        # response = dialog.run()
+        # abbr = ''
+        # if response == Gtk.ResponseType.ACCEPT:
+            # abbr = entry.get_text()
+        # dialog.destroy()
+        # return abbr
 
     @staticmethod
     def check_filetype_and_get_contrib(file_types=None):
