@@ -1,4 +1,5 @@
 import os
+from ConfigParser import SafeConfigParser
 from gettext import gettext as _
 from gi.repository import Gtk, GObject
 import geany
@@ -51,8 +52,10 @@ class EmmetPlugin(geany.Plugin):
     __plugin_author__ = "Sagar Chalise <chalisesagar@gmail.com>"
     indicators = (geany.editor.INDICATOR_SEARCH, 1)
     file_types = ('HTML', 'PHP', 'XML', 'CSS')
+    _highlight_tag = False
 
     def __init__(self):
+        self.load_config()
         self.menu_item = Gtk.MenuItem(_("Emmet"))
         imenu = Gtk.Menu()
         for label in create_action_label():
@@ -112,6 +115,9 @@ class EmmetPlugin(geany.Plugin):
                     for indicator in self.indicators:
                         editor.indicator_clear(indicator)
                     self.run_emmet_action("highlight_tag", contrib)
+        else:
+            for indicator in self.indicators:
+                editor.indicator_clear(indicator)
 
     def load_config(self):
         self.cfg_path = os.path.join(geany.app.configdir, "plugins", "pyemmet.conf")
@@ -142,14 +148,14 @@ class EmmetPlugin(geany.Plugin):
         self.save_config()
 
     def on_highlight_tag_toggled(self, chk_btn, data=None):
-		self.highlight_tag = chk_btn.get_active()
+        self.highlight_tag = chk_btn.get_active()
 
     def configure(self, dialog):
         vbox = Gtk.VBox(spacing=6)
-		vbox.set_border_width(6)
+        vbox.set_border_width(6)
         check = Gtk.CheckButton("Highlight Matching Tags")
-		if self.highlight_tag:
-			check.set_active(True)
-		check.connect("toggled", self.on_highlight_tag_toggled)
+        if self.highlight_tag:
+            check.set_active(True)
+        check.connect("toggled", self.on_highlight_tag_toggled)
         vbox.pack_start(check, True, True, 0)
         return vbox
