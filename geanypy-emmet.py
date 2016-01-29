@@ -63,24 +63,15 @@ class EmmetPlugin(geany.Plugin):
 
     def __init__(self):
         self.load_config()
-        self.menu_item = Gtk.MenuItem(_("Emmet"))
-        imenu = Gtk.Menu()
-        for label in create_action_label():
-            menu_item = Gtk.MenuItem(label)
-            menu_item.connect("activate", self.on_action_activate, actions_dict[label])
-            menu_item.show()
-            imenu.append(menu_item)
-            try:
-                geany.bindings.register_binding("Emmet", label, self.on_action_activate, actions_dict[label])
-            except AttributeError:
-                geany.ui_utils.set_statusbar("GeanyPy was not compiled with keybindings support.")
-        self.menu_item.set_submenu(imenu)
-        self.menu_item.show()
+        self.set_tools_menu()
+        self.set_editor_menu()
         geany.signals.connect("editor-notify", self.on_editor_notify)
         geany.main_widgets.tools_menu.append(self.menu_item)
+        geany.main_widgets.editor_menu.append(self.editor_menu)
 
     def cleanup(self):
         self.menu_item.destroy()
+        self.editor_menu.destroy()
 
     @staticmethod
     def prompt(title):
@@ -109,7 +100,7 @@ class EmmetPlugin(geany.Plugin):
             c.locals.pyRunAction(action)
 
     def on_action_activate(self, key_id, name):
-        contrib = EmmetPlugin.check_filetype_and_get_contrib()
+        contrib = self.check_filetype_and_get_contrib()
         if contrib:
             self.run_emmet_action(name, contrib)
 
@@ -166,3 +157,30 @@ class EmmetPlugin(geany.Plugin):
         check.connect("toggled", self.on_highlight_tag_toggled)
         vbox.pack_start(check, True, True, 0)
         return vbox
+
+    def set_tools_menu(self):
+        self.menu_item = Gtk.MenuItem(_("Emmet"))
+        imenu = Gtk.Menu()
+        for label in create_action_label():
+            menu_item = Gtk.MenuItem(label)
+            menu_item.connect("activate", self.on_action_activate, actions_dict[label])
+            menu_item.show()
+            imenu.append(menu_item)
+            try:
+                geany.bindings.register_binding("Emmet", label, self.on_action_activate, actions_dict[label])
+            except AttributeError:
+                geany.ui_utils.set_statusbar("GeanyPy was not compiled with keybindings support.")
+        self.menu_item.set_submenu(imenu)
+        self.menu_item.show()
+
+    def set_editor_menu(self):
+        indexes = (0, 3, 9)
+        self.editor_menu = Gtk.MenuItem(_("Emmet"))
+        imenu = Gtk.Menu()
+        for index in indexes:
+            menu_item = Gtk.MenuItem(_(actions[index].replace("_", " ").title()))
+            menu_item.connect("activate", self.on_action_activate, actions[index])
+            menu_item.show()
+            imenu.append(menu_item)
+        self.editor_menu.set_submenu(imenu)
+        self.editor_menu.show()
