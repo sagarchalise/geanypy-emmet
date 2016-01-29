@@ -171,7 +171,7 @@ class EmmetPlugin(geany.Plugin):
     def configure(self, dialog):
         vbox = Gtk.VBox(spacing=6)
         vbox.set_border_width(6)
-        check = Gtk.CheckButton("Highlight Matching Tags")
+        check = Gtk.CheckButton(_("Highlight Matching Tags"))
         if self.highlight_tag:
             check.set_active(True)
         check.connect("toggled", self.on_highlight_tag_toggled)
@@ -179,7 +179,7 @@ class EmmetPlugin(geany.Plugin):
         return vbox
 
     def show_configure(self):
-        dialog = Gtk.Dialog(_("Configure Emmet Plugin"),
+        dialog = Gtk.Dialog(_("Configure Emmet."),
                             geany.main_widgets.window,
                             Gtk.DIALOG_MODAL | Gtk.DIALOG_DESTROY_WITH_PARENT,
                             (Gtk.STOCK_CLOSE, Gtk.RESPONSE_ACCEPT))
