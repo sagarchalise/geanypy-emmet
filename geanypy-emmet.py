@@ -26,7 +26,15 @@ BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 EXT_PATH = os.path.join(BASE_PATH, 'emmet_ext')
 makedir(EXT_PATH)
 
-actions = ("expand_abbreviation", "match_pair_inward", "match_pair_outward","wrap_with_abbreviation", "prev_edit_point", "next_edit_point", "insert_formatted_newline", "select_previous_item", "select_next_item", "matching_pair", "merge_lines", "toggle_comment", "split_join_tag", "remove_tag", "update_image_size", "evaluate_math_expression", "reflect_css_value", "insert_formatted_line_break_only", "encode_decode_data_url", "increment_number_by_1", "increment_number_by_10", "increment_number_by_01", "decrement_number_by_1", "decrement_number_by_10", "decrement_number_by_01")
+actions = ("expand_abbreviation", "match_pair_inward", "match_pair_outward",
+            "wrap_with_abbreviation", "prev_edit_point", "next_edit_point",
+            "insert_formatted_newline", "select_previous_item", "select_next_item",
+            "matching_pair", "merge_lines", "toggle_comment", "split_join_tag",
+            "remove_tag", "update_image_size", "evaluate_math_expression",
+            "reflect_css_value", "insert_formatted_line_break_only",
+            "encode_decode_data_url", "increment_number_by_1", "increment_number_by_10",
+            "increment_number_by_01", "decrement_number_by_1", "decrement_number_by_10",
+            "decrement_number_by_01")
 
 def create_action_label():
     for action in actions:
