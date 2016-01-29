@@ -1,6 +1,6 @@
 import os
 from gettext import gettext as _
-from gi.repository import Gtk
+from gi.repository import Gtk, GObject
 import geany
 from emmet.context import Context
 
@@ -72,25 +72,10 @@ class EmmetPlugin(geany.Plugin):
     def cleanup(self):
         self.menu_item.destroy()
 
-    # @staticmethod
-    # def prompt(title):
-        # dialog = Gtk.Dialog(title, geany.main_widgets.window, Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL, (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-             # Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
-        # dialog.set_default_size(300, -1)
-        # dialog.set_default_response(Gtk.ResponseType.ACCEPT)
-        # content_area = dialog.get_content_area()
-        # entry = Gtk.Entry()
-        # vbox = Gtk.VBox(False, 0)
-        # vbox.pack_start(entry, True, True, 0)
-        # vbox.set_border_width(12)
-        # content_area.add(vbox)
-        # vbox.show_all()
-        # response = dialog.run()
-        # abbr = ''
-        # if response == Gtk.ResponseType.ACCEPT:
-            # abbr = entry.get_text()
-        # dialog.destroy()
-        # return abbr
+    @staticmethod
+    def prompt(title):
+        abbr = geany.dialogs.show_input(_(title), geany.main_widgets.window, None, None)
+        return abbr
 
     @staticmethod
     def check_filetype_and_get_contrib(file_types=None):
@@ -119,10 +104,52 @@ class EmmetPlugin(geany.Plugin):
             self.run_emmet_action(name, contrib)
 
     def on_editor_notify(self, g_obj, editor, nt):
-        contrib = self.check_filetype_and_get_contrib(("PHP", "HTML", "XML"))
-        if contrib:
-            notification_codes = (geany.scintilla.UPDATE_UI, geany.scintilla.KEY)
-            if nt.nmhdr.code in notification_codes:
-                for indicator in self.indicators:
-                    editor.indicator_clear(indicator)
-                self.run_emmet_action("highlight_tag", contrib)
+        if self.highlight_tag:
+            contrib = self.check_filetype_and_get_contrib(("PHP", "HTML", "XML"))
+            if contrib:
+                notification_codes = (geany.scintilla.UPDATE_UI, geany.scintilla.KEY)
+                if nt.nmhdr.code in notification_codes:
+                    for indicator in self.indicators:
+                        editor.indicator_clear(indicator)
+                    self.run_emmet_action("highlight_tag", contrib)
+
+    def load_config(self):
+        self.cfg_path = os.path.join(geany.app.configdir, "plugins", "pyemmet.conf")
+        self.cfg = SafeConfigParser()
+        self.cfg.read(self.cfg_path)
+
+    def save_config(self):
+        GObject.idle_add(self.on_save_config_timeout)
+
+    def on_save_config_timeout(self, data=None):
+        self.cfg.write(open(self.cfg_path, 'w'))
+        return False
+
+    @property
+    def highlight_tag(self):
+        if self.cfg.has_section('general'):
+            if self.cfg.has_option('general', 'highlight_tag'):
+                return self.cfg.getboolean('general', 'highlight_tag')
+        return self._highlight_tag
+
+    @highlight_tag.setter
+    def highlight_tag(self, value):
+        self._highlight_tag = value
+        if not self.cfg.has_section('general'):
+            self.cfg.add_section('general')
+        self.cfg.set('general', 'highlight_tag',
+            str(self._highlight_tag).lower())
+        self.save_config()
+
+    def on_highlight_tag_toggled(self, chk_btn, data=None):
+		self.highlight_tag = chk_btn.get_active()
+
+    def configure(self, dialog):
+        vbox = Gtk.VBox(spacing=6)
+		vbox.set_border_width(6)
+        check = Gtk.CheckButton("Highlight Matching Tags")
+		if self.highlight_tag:
+			check.set_active(True)
+		check.connect("toggled", self.on_highlight_tag_toggled)
+        vbox.pack_start(check, True, True, 0)
+        return vbox
