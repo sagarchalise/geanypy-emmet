@@ -118,7 +118,7 @@ class EmmetPlugin(geany.Plugin):
         if not self.cfg.has_section('general'):
             self.cfg.add_section('general')
         self.cfg.set('general', 'highlight_tag',
-            str(self._use_rl_completer).lower())
+            str(self._highlight_tag).lower())
         self.save_config()
 
     @staticmethod
@@ -179,11 +179,10 @@ class EmmetPlugin(geany.Plugin):
         return vbox
 
     def show_configure(self):
-        dialog = Gtk.Dialog("Configure Emmet Plugin",
+        dialog = Gtk.Dialog(_("Configure Emmet Plugin"),
                             geany.main_widgets.window,
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                            (gtk.STOCK_CLOSE, gtk.RESPONSE_ACCEPT))
-        dialog.set_has_separator(True)
+                            Gtk.DIALOG_MODAL | Gtk.DIALOG_DESTROY_WITH_PARENT,
+                            (Gtk.STOCK_CLOSE, Gtk.RESPONSE_ACCEPT))
         content_area = dialog.get_content_area()
         content_area.set_border_width(6)
         vbox = self.configure(dialog)
