@@ -8,6 +8,7 @@ if pygtkcompat is not None:
     pygtkcompat.enable_gtk(version='3.0')
 
 import os
+from ConfigParser import SafeConfigParser
 from gettext import gettext as _
 import gtk as Gtk
 import gobject as GObject
@@ -89,10 +90,8 @@ class EmmetPlugin(geany.Plugin):
         self.cfg = SafeConfigParser()
         self.cfg.read(self.cfg_path)
 
-
     def save_config(self):
         GObject.idle_add(self.on_save_config_timeout)
-
 
     def on_save_config_timeout(self, data=None):
         self.cfg.write(open(self.cfg_path, 'w'))
@@ -116,7 +115,7 @@ class EmmetPlugin(geany.Plugin):
 
     @staticmethod
     def prompt(title):
-        abbr = geany.dialogs.show_input(_(title), title, geany.main_widgets.window)
+        abbr = geany.dialogs.show_input(_(title), geany.main_widgets.window, None, None)
         return abbr
 
     @staticmethod
@@ -154,31 +153,33 @@ class EmmetPlugin(geany.Plugin):
                     for indicator in self.indicators:
                         editor.indicator_clear(indicator)
                     self.run_emmet_action("highlight_tag", contrib)
+        else:
+            for indicator in self.indicators:
+                editor.indicator_clear(indicator)
 
     def on_highlight_tag_toggled(self, chk_btn, data=None):
 		self.highlight_tag = chk_btn.get_active()
 
     def configure(self, dialog):
         vbox = Gtk.VBox(spacing=6)
-		vbox.set_border_width(6)
+        vbox.set_border_width(6)
         check = Gtk.CheckButton("Highlight Matching Tags")
-		if self.highlight_tag:
-			check.set_active(True)
-		check.connect("toggled", self.on_highlight_tag_toggled)
+        if self.highlight_tag:
+            check.set_active(True)
+        check.connect("toggled", self.on_highlight_tag_toggled)
         vbox.pack_start(check, True, True, 0)
         return vbox
 
     def show_configure(self):
         dialog = Gtk.Dialog("Configure Emmet Plugin",
-							geany.main_widgets.window,
-							gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-							(gtk.STOCK_CLOSE, gtk.RESPONSE_ACCEPT))
-
-		dialog.set_has_separator(True)
-		content_area = dialog.get_content_area()
-		content_area.set_border_width(6)
-		vbox = self.configure(dialog)
-		content_area.pack_start(vbox, True, True, 0)
-		content_area.show_all()
-		dialog.run()
-		dialog.destroy()
+                            geany.main_widgets.window,
+                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                            (gtk.STOCK_CLOSE, gtk.RESPONSE_ACCEPT))
+        dialog.set_has_separator(True)
+        content_area = dialog.get_content_area()
+        content_area.set_border_width(6)
+        vbox = self.configure(dialog)
+        content_area.pack_start(vbox, True, True, 0)
+        content_area.show_all()
+        dialog.run()
+        dialog.destroy()
