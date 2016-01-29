@@ -155,7 +155,7 @@ class EmmetPlugin(geany.Plugin):
                         editor.indicator_clear(indicator)
                     self.run_emmet_action("highlight_tag", contrib)
 
-    def on_use_rl_completer_toggled(self, chk_btn, data=None):
+    def on_highlight_tag_toggled(self, chk_btn, data=None):
 		self.highlight_tag = chk_btn.get_active()
 
     def configure(self, dialog):
