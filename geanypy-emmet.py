@@ -4,12 +4,13 @@ except ImportError:
     pygtkcompat = None
 
 if pygtkcompat is not None:
-    pygtkcompat.enable() 
+    pygtkcompat.enable()
     pygtkcompat.enable_gtk(version='3.0')
 
 import os
 from gettext import gettext as _
 import gtk as Gtk
+import gobject as GObject
 import geany
 from emmet.context import Context
 
@@ -60,8 +61,10 @@ class EmmetPlugin(geany.Plugin):
     __plugin_author__ = "Sagar Chalise <chalisesagar@gmail.com>"
     indicators = (geany.editor.INDICATOR_SEARCH, 1)
     file_types = ('HTML', 'PHP', 'XML', 'CSS')
+    _highlight_tag = False
 
     def __init__(self):
+        self.load_config()
         self.menu_item = Gtk.MenuItem(_("Emmet"))
         imenu = Gtk.Menu()
         for label in create_action_label():
@@ -72,7 +75,7 @@ class EmmetPlugin(geany.Plugin):
             try:
                 geany.bindings.register_binding("Emmet", label, self.on_action_activate, actions_dict[label])
             except AttributeError:
-                geany.ui_utils.set_statusbar("GeanyPy was not compiled with keybindings support.")
+                geany.ui_utils.set_statusbar("GeanyPy was not compiled with bindings support.Use: https://github.com/sagarchalise/geanypy")
         self.menu_item.set_submenu(imenu)
         self.menu_item.show()
         geany.signals.connect("editor-notify", self.on_editor_notify)
@@ -81,24 +84,39 @@ class EmmetPlugin(geany.Plugin):
     def cleanup(self):
         self.menu_item.destroy()
 
+    def load_config(self):
+        self.cfg_path = os.path.join(geany.app.configdir, "plugins", "pyemmet.conf")
+        self.cfg = SafeConfigParser()
+        self.cfg.read(self.cfg_path)
+
+
+    def save_config(self):
+        GObject.idle_add(self.on_save_config_timeout)
+
+
+    def on_save_config_timeout(self, data=None):
+        self.cfg.write(open(self.cfg_path, 'w'))
+        return False
+
+    @property
+    def highlight_tag(self):
+        if self.cfg.has_section('general'):
+            if self.cfg.has_option('general', 'highlight_tag'):
+                return self.cfg.getboolean('general', 'highlight_tag')
+        return self._highlight_tag
+
+    @highlight_tag.setter
+    def highlight_tag(self, value):
+        self._highlight_tag = value
+        if not self.cfg.has_section('general'):
+            self.cfg.add_section('general')
+        self.cfg.set('general', 'highlight_tag',
+            str(self._use_rl_completer).lower())
+        self.save_config()
+
     @staticmethod
     def prompt(title):
-        dialog = Gtk.Dialog(title, geany.main_widgets.window, Gtk.DIALOG_DESTROY_WITH_PARENT | Gtk.DIALOG_MODAL, (Gtk.STOCK_CANCEL, Gtk.RESPONSE_REJECT,
-             Gtk.STOCK_OK, Gtk.RESPONSE_ACCEPT))
-        dialog.set_default_size(300, -1)
-        dialog.set_default_response(Gtk.RESPONSE_ACCEPT)
-        content_area = dialog.get_content_area()
-        entry = Gtk.Entry()
-        vbox = Gtk.VBox(False, 0)
-        vbox.pack_start(entry, True, True, 0)
-        vbox.set_border_width(12)
-        content_area.add(vbox)
-        vbox.show_all()
-        response = dialog.run()
-        abbr = ''
-        if response == Gtk.RESPONSE_ACCEPT:
-            abbr = entry.get_text()
-        dialog.destroy()
+        abbr = geany.dialogs.show_input(_(title), title, geany.main_widgets.window)
         return abbr
 
     @staticmethod
@@ -128,10 +146,39 @@ class EmmetPlugin(geany.Plugin):
             self.run_emmet_action(name, contrib)
 
     def on_editor_notify(self, g_obj, editor, nt):
-        contrib = self.check_filetype_and_get_contrib(("PHP", "HTML", "XML"))
-        if contrib:
-            notification_codes = (geany.scintilla.UPDATE_UI, geany.scintilla.KEY)
-            if nt.nmhdr.code in notification_codes:
-                for indicator in self.indicators:
-                    editor.indicator_clear(indicator)
-                self.run_emmet_action("highlight_tag", contrib)
+        if self.highlight_tag:
+            contrib = self.check_filetype_and_get_contrib(("PHP", "HTML", "XML"))
+            if contrib:
+                notification_codes = (geany.scintilla.UPDATE_UI, geany.scintilla.KEY)
+                if nt.nmhdr.code in notification_codes:
+                    for indicator in self.indicators:
+                        editor.indicator_clear(indicator)
+                    self.run_emmet_action("highlight_tag", contrib)
+
+    def on_use_rl_completer_toggled(self, chk_btn, data=None):
+		self.highlight_tag = chk_btn.get_active()
+
+    def configure(self, dialog):
+        vbox = Gtk.VBox(spacing=6)
+		vbox.set_border_width(6)
+        check = Gtk.CheckButton("Highlight Matching Tags")
+		if self.highlight_tag:
+			check.set_active(True)
+		check.connect("toggled", self.on_highlight_tag_toggled)
+        vbox.pack_start(check, True, True, 0)
+        return vbox
+
+    def show_configure(self):
+        dialog = Gtk.Dialog("Configure Emmet Plugin",
+							geany.main_widgets.window,
+							gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+							(gtk.STOCK_CLOSE, gtk.RESPONSE_ACCEPT))
+
+		dialog.set_has_separator(True)
+		content_area = dialog.get_content_area()
+		content_area.set_border_width(6)
+		vbox = self.configure(dialog)
+		content_area.pack_start(vbox, True, True, 0)
+		content_area.show_all()
+		dialog.run()
+		dialog.destroy()
