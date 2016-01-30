@@ -109,22 +109,17 @@ class EmmetPlugin(geany.Plugin):
         geany.main_widgets.tools_menu.append(self.main_menu)
 
     def set_editor_menu(self):
-        if self.show_editor_menu:
-            indexes = (0, 3, 9)
-            self.editor_menu = Gtk.MenuItem(_("Emmet"))
-            imenu = Gtk.Menu()
-            for index in indexes:
-                menu_item = Gtk.MenuItem(_(actions[index].replace("_", " ").title()))
-                menu_item.connect("activate", self.on_action_activate, actions[index])
-                menu_item.show()
-                imenu.append(menu_item)
-            self.editor_menu.set_submenu(imenu)
-            self.editor_menu.show()
-            geany.main_widgets.editor_menu.append(self.editor_menu)
-        elif self.editor_menu:
-            geany.main_widgets.editor_menu.remove(self.editor_menu)
-            self.editor_menu.destroy()
-
+        indexes = (0, 3, 9)
+        self.editor_menu = Gtk.MenuItem(_("Emmet"))
+        imenu = Gtk.Menu()
+        for index in indexes:
+            menu_item = Gtk.MenuItem(_(actions[index].replace("_", " ").title()))
+            menu_item.connect("activate", self.on_action_activate, actions[index])
+            menu_item.show()
+            imenu.append(menu_item)
+        self.editor_menu.set_submenu(imenu)
+        self.editor_menu.show()
+        geany.main_widgets.editor_menu.append(self.editor_menu)
 
     def set_specific_menu(self):
         self.specific_menu = Gtk.MenuToolButton()
