@@ -63,35 +63,31 @@ def create_action_label():
 actions_dict = dict(zip([label for label in create_action_label()], actions))
 
 class EmmetPlugin(geany.Plugin):
-
     __plugin_name__ = "Emmet"
     __plugin_version__ = "0.1"
     __plugin_description__ = "Emmet Plugin for geany."
     __plugin_author__ = "Sagar Chalise <chalisesagar@gmail.com>"
     indicators = (geany.editor.INDICATOR_SEARCH, 1)
     file_types = ('HTML', 'PHP', 'XML', 'CSS')
-    _highlight_tag = False
+    __highlight_tag = False
+    __show_editor_menu = False
+    __show_specific_menu = False
+    editor_menu = None
+    specific_menu = None
 
     def __init__(self):
         self.load_config()
-        self.menu_item = Gtk.MenuItem(_("Emmet"))
-        imenu = Gtk.Menu()
-        for label in create_action_label():
-            menu_item = Gtk.MenuItem(label)
-            menu_item.connect("activate", self.on_action_activate, actions_dict[label])
-            menu_item.show()
-            imenu.append(menu_item)
-            try:
-                geany.bindings.register_binding("Emmet", label, self.on_action_activate, actions_dict[label])
-            except AttributeError:
-                geany.ui_utils.set_statusbar("GeanyPy was not compiled with bindings support.Use: https://github.com/sagarchalise/geanypy")
-        self.menu_item.set_submenu(imenu)
-        self.menu_item.show()
+        self.set_main_menu()
+        self.check_extra_menus()
         geany.signals.connect("editor-notify", self.on_editor_notify)
-        geany.main_widgets.tools_menu.append(self.menu_item)
 
     def cleanup(self):
-        self.menu_item.destroy()
+        self.main_menu.destroy()
+        if self.show_editor_menu and self.editor_menu:
+            self.editor_menu.destroy()
+        if self.show_specific_menu and self.specific_menu:
+            self.specific_menu.destroy()
+
 
     def load_config(self):
         self.cfg_path = os.path.join(geany.app.configdir, "plugins", "pyemmet.conf")
@@ -105,20 +101,117 @@ class EmmetPlugin(geany.Plugin):
         self.cfg.write(open(self.cfg_path, 'w'))
         return False
 
+    def set_main_menu(self):
+        self.main_menu = Gtk.MenuItem(_("Emmet"))
+        imenu = self.populate_menu()
+        self.main_menu.set_submenu(imenu)
+        self.main_menu.show()
+        geany.main_widgets.tools_menu.append(self.main_menu)
+
+    def set_editor_menu(self):
+        if self.show_editor_menu:
+            indexes = (0, 3, 9)
+            self.editor_menu = Gtk.MenuItem(_("Emmet"))
+            imenu = Gtk.Menu()
+            for index in indexes:
+                menu_item = Gtk.MenuItem(_(actions[index].replace("_", " ").title()))
+                menu_item.connect("activate", self.on_action_activate, actions[index])
+                menu_item.show()
+                imenu.append(menu_item)
+            self.editor_menu.set_submenu(imenu)
+            self.editor_menu.show()
+            geany.main_widgets.editor_menu.append(self.editor_menu)
+        elif self.editor_menu:
+            geany.main_widgets.editor_menu.remove(self.editor_menu)
+            self.editor_menu.destroy()
+
+
+    def set_specific_menu(self):
+        self.specific_menu = Gtk.MenuToolButton()
+        self.specific_menu.set_arrow_tooltip_text(_("Emmet Actions"))
+        imenu = self.populate_menu()
+        self.specific_menu.set_menu(imenu)
+        self.specific_menu.show()
+        tb = geany.main_widgets.toolbar
+        pos = tb.get_n_items()-1
+        tb.insert(self.specific_menu, pos)
+
+    def check_extra_menus(self):
+        if not self.editor_menu and self.show_editor_menu:
+            self.set_editor_menu()
+        elif not self.show_editor_menu and self.editor_menu:
+            geany.main_widgets.editor_menu.remove(self.editor_menu)
+            self.editor_menu.hide()
+            self.editor_menu.destroy()
+            self.editor_menu = None
+        if not self.specific_menu and self.show_specific_menu:
+            self.set_specific_menu()
+        elif not self.show_specific_menu and self.specific_menu:
+            geany.main_widgets.toolbar.remove(self.specific_menu)
+            self.specific_menu.hide()
+            self.specific_menu.destroy()
+            self.specific_menu = None
+
+
+    def populate_menu(self):
+        imenu = Gtk.Menu()
+        for label in create_action_label():
+            menu_item = Gtk.MenuItem(label)
+            menu_item.connect("activate", self.on_action_activate, actions_dict[label])
+            menu_item.show()
+            imenu.append(menu_item)
+            try:
+                geany.bindings.register_binding("Emmet", label, self.on_action_activate, actions_dict[label])
+            except AttributeError:
+                geany.ui_utils.set_statusbar("GeanyPy was not compiled with bindings support.Use: https://github.com/sagarchalise/geanypy")
+        return imenu
+
     @property
     def highlight_tag(self):
         if self.cfg.has_section('general'):
             if self.cfg.has_option('general', 'highlight_tag'):
                 return self.cfg.getboolean('general', 'highlight_tag')
-        return self._highlight_tag
+        return self.__highlight_tag
 
     @highlight_tag.setter
     def highlight_tag(self, value):
-        self._highlight_tag = value
+        self.__highlight_tag = value
         if not self.cfg.has_section('general'):
             self.cfg.add_section('general')
         self.cfg.set('general', 'highlight_tag',
-            str(self._highlight_tag).lower())
+            str(self.__highlight_tag).lower())
+        self.save_config()
+
+    @property
+    def show_editor_menu(self):
+        if self.cfg.has_section('general'):
+            if self.cfg.has_option('general', 'show_editor_menu'):
+                return self.cfg.getboolean('general', 'show_editor_menu')
+        return self.__show_editor_menu
+
+    @show_editor_menu.setter
+    def show_editor_menu(self, value):
+        self.__show_editor_menu = value
+        if not self.cfg.has_section('general'):
+            self.cfg.add_section('general')
+        self.cfg.set('general', 'show_editor_menu',
+            str(self.__show_editor_menu).lower())
+        self.save_config()
+
+    @property
+    def show_specific_menu(self):
+        if self.cfg.has_section('general'):
+            if self.cfg.has_option('general', 'show_specific_menu'):
+                return self.cfg.getboolean('general', 'show_specific_menu')
+        return self.__show_specific_menu
+
+    @show_specific_menu.setter
+    def show_specific_menu(self, value):
+        self.__show_specific_menu = value
+        if not self.cfg.has_section('general'):
+            self.cfg.add_section('general')
+        self.cfg.set('general', 'show_specific_menu',
+            str(self.__show_specific_menu).lower())
         self.save_config()
 
     @staticmethod
@@ -168,14 +261,32 @@ class EmmetPlugin(geany.Plugin):
     def on_highlight_tag_toggled(self, chk_btn, data=None):
 		self.highlight_tag = chk_btn.get_active()
 
+    def on_editor_menu_toggled(self, chk_btn, data=None):
+        self.show_editor_menu = chk_btn.get_active()
+        self.check_extra_menus()
+
+    def on_specific_menu_toggled(self, chk_btn, data=None):
+        self.show_specific_menu = chk_btn.get_active()
+        self.check_extra_menus()
+
     def configure(self, dialog):
         vbox = Gtk.VBox(spacing=6)
         vbox.set_border_width(6)
-        check = Gtk.CheckButton(_("Highlight Matching Tags"))
+        check_highlight = Gtk.CheckButton(_("Highlight Matching Tags"))
         if self.highlight_tag:
-            check.set_active(True)
-        check.connect("toggled", self.on_highlight_tag_toggled)
-        vbox.pack_start(check, True, True, 0)
+            check_highlight.set_active(True)
+        check_highlight.connect("toggled", self.on_highlight_tag_toggled)
+        check_editor_menu = Gtk.CheckButton(_("Show some actions on editor menu"))
+        if self.show_editor_menu:
+            check_editor_menu.set_active(True)
+        check_editor_menu.connect("toggled", self.on_editor_menu_toggled)
+        check_specific_menu = Gtk.CheckButton(_("Show specific menu on toolbar [Just an arrow before last toolbar item]"))
+        if self.show_specific_menu:
+            check_specific_menu.set_active(True)
+        check_specific_menu.connect("toggled", self.on_specific_menu_toggled)
+        vbox.pack_start(check_highlight, True, True, 0)
+        vbox.pack_start(check_editor_menu, True, True, 0)
+        vbox.pack_start(check_specific_menu, True, True, 0)
         return vbox
 
     def show_configure(self):
