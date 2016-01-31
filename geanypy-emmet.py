@@ -121,29 +121,41 @@ class EmmetPlugin(geany.Plugin):
         self.editor_menu.show()
         geany.main_widgets.editor_menu.append(self.editor_menu)
 
+    @staticmethod
+    def get_geany_menubar():
+        """ Very hackish  way to get menubar. """
+        #m = geany.ui_utils.lookup_widget(geany.main_widgets.window, 'meubar1')
+        m = geany.main_widgets.window.get_child().get_children()[0].get_children()[0]
+        if isinstance(m, Gtk.MenuBar):
+            return m
+
     def set_specific_menu(self):
-        self.specific_menu = Gtk.MenuToolButton()
-        self.specific_menu.set_arrow_tooltip_text(_("Emmet Actions"))
+        self.specific_menu = Gtk.MenuItem(_("Emmet"))
+        # self.specific_menu = Gtk.MenuToolButton()
+        # self.specific_menu.set_arrow_tooltip_text(_("Emmet Actions"))
         imenu = self.populate_menu()
-        self.specific_menu.set_menu(imenu)
+        self.specific_menu.set_submenu(imenu)
         self.specific_menu.show()
-        tb = geany.main_widgets.toolbar
-        pos = tb.get_n_items()-1
-        tb.insert(self.specific_menu, pos)
+        menubar = self.get_geany_menubar()
+        if menubar:
+            menubar.append(self.specific_menu)
+        # tb = geany.main_widgets.toolbar
+        # pos = tb.get_n_items()-1
+        # tb.insert(self.specific_menu, pos)
 
     def check_extra_menus(self):
         if not self.editor_menu and self.show_editor_menu:
             self.set_editor_menu()
         elif not self.show_editor_menu and self.editor_menu:
             geany.main_widgets.editor_menu.remove(self.editor_menu)
-            self.editor_menu.hide()
             self.editor_menu.destroy()
             self.editor_menu = None
         if not self.specific_menu and self.show_specific_menu:
             self.set_specific_menu()
         elif not self.show_specific_menu and self.specific_menu:
-            geany.main_widgets.toolbar.remove(self.specific_menu)
-            self.specific_menu.hide()
+            mb = self.get_geany_menubar()
+            if mb:
+                mb.remove(self.specific_menu)
             self.specific_menu.destroy()
             self.specific_menu = None
 
@@ -275,7 +287,7 @@ class EmmetPlugin(geany.Plugin):
         if self.show_editor_menu:
             check_editor_menu.set_active(True)
         check_editor_menu.connect("toggled", self.on_editor_menu_toggled)
-        check_specific_menu = Gtk.CheckButton(_("Show specific menu on toolbar [Just an arrow before last toolbar item]"))
+        check_specific_menu = Gtk.CheckButton(_("Show specific menu on menubar"))
         if self.show_specific_menu:
             check_specific_menu.set_active(True)
         check_specific_menu.connect("toggled", self.on_specific_menu_toggled)
