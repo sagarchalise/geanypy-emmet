@@ -4,7 +4,7 @@ except ImportError:
     pygtkcompat = None
 
 if pygtkcompat is not None:
-    pygtkcompat.enable() 
+    pygtkcompat.enable()
     pygtkcompat.enable_gtk(version='3.0')
 
 import os
@@ -173,11 +173,17 @@ class EmmetPlugin(geany.Plugin):
 
     def populate_menu(self):
         imenu = Gtk.Menu()
+        # Proxy keybinding [has errors]
+        # emmet_key = self.set_key_group("emmet", len(actions), self.on_action_activate)
+        # key_code = 0
         for label in create_action_label():
             menu_item = Gtk.MenuItem(label)
             menu_item.connect("activate", self.on_action_activate, actions_dict[label])
             menu_item.show()
             imenu.append(menu_item)
+            # if emmet_key:
+                # self.set_key_items(emmet_key, key_code, 0, 0, actions[key_code], label, menu_item, None)
+            # key_code += 1
         return imenu
 
     @property
