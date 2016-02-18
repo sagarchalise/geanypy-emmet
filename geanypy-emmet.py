@@ -53,10 +53,10 @@ def create_action_label():
 actions_dict = dict(zip([label for label in create_action_label()], actions))
 
 class EmmetPlugin(geany.Plugin):
-    __plugin_name__ = "Emmet"
-    __plugin_version__ = "0.1"
-    __plugin_description__ = "Emmet Plugin for geany."
-    __plugin_author__ = "Sagar Chalise <chalisesagar@gmail.com>"
+    __plugin_name__ = _('Emmet')
+    __plugin_version__ = _('0.1')
+    __plugin_description__ = _('Emmet Plugin for geany.')
+    __plugin_author__ = _('Sagar Chalise <chalisesagar@gmail.com>')
     indicators = (geany.editor.INDICATOR_SEARCH, 1)
     file_types = ('HTML', 'PHP', 'XML', 'CSS')
     __highlight_tag = False
@@ -64,19 +64,24 @@ class EmmetPlugin(geany.Plugin):
     __show_specific_menu = False
     editor_menu = None
     specific_menu = None
+    tools_menu = None
 
     def __init__(self):
         self.load_config()
-        self.set_main_menu()
-        self.check_extra_menus()
+        self.check_main_menu()
+        self.check_editor_menu()
+        signals = ('document-reload', 'document-save', 'document-activate', 'document-close')
+        for signal in signals:
+            geany.signals.connect(signal, self.on_document_notify)
         geany.signals.connect("editor-notify", self.on_editor_notify)
 
     def cleanup(self):
-        self.main_menu.destroy()
         if self.show_editor_menu and self.editor_menu:
             self.editor_menu.destroy()
         if self.show_specific_menu and self.specific_menu:
             self.specific_menu.destroy()
+        else:
+            self.tools_menu.destroy()
 
 
     def load_config(self):
@@ -91,12 +96,12 @@ class EmmetPlugin(geany.Plugin):
         self.cfg.write(open(self.cfg_path, 'w'))
         return False
 
-    def set_main_menu(self):
-        self.main_menu = Gtk.MenuItem(_("Emmet"))
+    def set_tools_menu(self):
+        self.tools_menu = Gtk.MenuItem(_("Emmet"))
         imenu = self.populate_menu()
-        self.main_menu.set_submenu(imenu)
-        self.main_menu.show()
-        geany.main_widgets.tools_menu.append(self.main_menu)
+        self.tools_menu.set_submenu(imenu)
+        self.tools_menu.show()
+        geany.main_widgets.tools_menu.append(self.tools_menu)
 
     def set_editor_menu(self):
         indexes = (0, 3, 9)
@@ -122,29 +127,34 @@ class EmmetPlugin(geany.Plugin):
 
     def set_specific_menu(self):
         self.specific_menu = Gtk.MenuItem(_("Emmet"))
-        # self.specific_menu = Gtk.MenuToolButton()
-        # self.specific_menu.set_arrow_tooltip_text(_("Emmet Actions"))
         imenu = self.populate_menu()
         self.specific_menu.set_submenu(imenu)
         self.specific_menu.show()
         menubar = self.get_geany_menubar()
+        self.specific_menu.set_sensitive(False)
         if menubar:
             menubar.append(self.specific_menu)
-        # tb = geany.main_widgets.toolbar
-        # pos = tb.get_n_items()-1
-        # tb.insert(self.specific_menu, pos)
 
-    def check_extra_menus(self):
+    def on_document_notify(self, user_data, doc):
+        self.check_filetype_and_get_contrib()
+
+    def check_editor_menu(self):
         if not self.editor_menu and self.show_editor_menu:
             self.set_editor_menu()
         elif not self.show_editor_menu and self.editor_menu:
             geany.main_widgets.editor_menu.remove(self.editor_menu)
             self.editor_menu.destroy()
             self.editor_menu = None
+
+    def check_main_menu(self):
         if not self.specific_menu and self.show_specific_menu:
             self.set_specific_menu()
+            if self.tools_menu:
+                geany.main_widgets.tools_menu.remove(self.tools_menu)
+                self.tools_menu.destroy()
+                self.tools_menu = None
         elif not self.show_specific_menu and self.specific_menu:
-            # geany.main_widgets.toolbar.remove(self.specific_menu)
+            self.set_tools_menu()
             mb = self.get_geany_menubar()
             if mb:
                 mb.remove(self.specific_menu)
@@ -154,16 +164,11 @@ class EmmetPlugin(geany.Plugin):
 
     def populate_menu(self):
         imenu = Gtk.Menu()
-        # emmet_key = self.set_key_group("emmet", len(actions), self.on_action_activate)
-        # key_code = 0
         for label in create_action_label():
             menu_item = Gtk.MenuItem(label)
             menu_item.connect("activate", self.on_action_activate, actions_dict[label])
             menu_item.show()
             imenu.append(menu_item)
-            # if emmet_key:
-                # self.set_key_items(emmet_key, key_code, 0, 0, actions[key_code], label, menu_item, None)
-            # key_code += 1
         return imenu
 
     @property
@@ -219,17 +224,17 @@ class EmmetPlugin(geany.Plugin):
         abbr = geany.dialogs.show_input(_(title), geany.main_widgets.window, None, None)
         return abbr
 
-    @staticmethod
-    def check_filetype_and_get_contrib(file_types=None):
-        if not file_types:
-            file_types = EmmetPlugin.file_types
-        cur_doc = geany.document.get_current()
+
+    def check_filetype_and_get_contrib(self, doc=None):
+        cur_doc = doc or geany.document.get_current()
         cur_file_type = cur_doc.file_type.name if cur_doc else None
-        if cur_file_type in file_types:
+        if cur_file_type in self.file_types:
+            if self.specific_menu:
+                self.specific_menu.set_sensitive(True)
             return {
                 'cur_doc': cur_doc,
                 'cur_doc_type': cur_file_type.lower() if cur_file_type != 'PHP' else 'html',
-                'prompt': EmmetPlugin.prompt,
+                'prompt': self.prompt,
                 'geanyIndicatorSearch': geany.editor.INDICATOR_SEARCH,
             }
 
@@ -241,7 +246,7 @@ class EmmetPlugin(geany.Plugin):
             c.locals.pyRunAction(action)
 
     def on_action_activate(self, key_id, name):
-        contrib = EmmetPlugin.check_filetype_and_get_contrib()
+        contrib = self.check_filetype_and_get_contrib()
         if contrib:
             self.run_emmet_action(name, contrib)
 
@@ -263,11 +268,11 @@ class EmmetPlugin(geany.Plugin):
 
     def on_editor_menu_toggled(self, chk_btn, data=None):
         self.show_editor_menu = chk_btn.get_active()
-        self.check_extra_menus()
+        self.check_editor_menu()
 
     def on_specific_menu_toggled(self, chk_btn, data=None):
         self.show_specific_menu = chk_btn.get_active()
-        self.check_extra_menus()
+        self.check_main_menu()
 
     def configure(self, dialog):
         vbox = Gtk.VBox(spacing=6)
@@ -280,7 +285,7 @@ class EmmetPlugin(geany.Plugin):
         if self.show_editor_menu:
             check_editor_menu.set_active(True)
         check_editor_menu.connect("toggled", self.on_editor_menu_toggled)
-        check_specific_menu = Gtk.CheckButton(_("Show specific menu on toolbar [Just an arrow before last toolbar item]"))
+        check_specific_menu = Gtk.CheckButton(_("Attach menu to menubar rather than tools menu."))
         if self.show_specific_menu:
             check_specific_menu.set_active(True)
         check_specific_menu.connect("toggled", self.on_specific_menu_toggled)
