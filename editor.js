@@ -93,7 +93,7 @@ var editorProxy = {
     },
     prompt: function(title) {
 	if (typeof title === 'undefined'){
-	    var title = 'Enter Abbreviation'; 
+	    var title = 'Enter Abbreviation';
 	}
 	return prompt(title);
     },
