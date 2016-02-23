@@ -164,11 +164,17 @@ class EmmetPlugin(geany.Plugin):
 
     def populate_menu(self):
         imenu = Gtk.Menu()
+        # Proxy keybinding [has errors]
+        emmet_key = self.set_key_group("emmet", len(actions), self.on_key_activate)
+        key_code = 0
         for label in create_action_label():
             menu_item = Gtk.MenuItem(label)
             menu_item.connect("activate", self.on_action_activate, actions_dict[label])
             menu_item.show()
             imenu.append(menu_item)
+            if emmet_key:
+                emmet_key.add_key_item(key_id=key_code, key=0, mod=0, name=actions[key_code], label=label)
+            key_code += 1
         return imenu
 
     @property
@@ -244,6 +250,9 @@ class EmmetPlugin(geany.Plugin):
         with ctx.js() as c:
             c.locals.pySetupEditorProxy()
             c.locals.pyRunAction(action)
+
+    def on_key_activate(self, key_id):
+        self.on_action_activate(key_id, actions[key_id])
 
     def on_action_activate(self, key_id, name):
         contrib = self.check_filetype_and_get_contrib()
