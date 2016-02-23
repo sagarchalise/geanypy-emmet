@@ -7,9 +7,9 @@ Plugin Base taken from https://github.com/sergeche/emmet-sublime which is used a
 
 
 ####Recommendations
-Please use [geanypy](https://github.com/sagarchalise/geanypy/tree/gtk3) *Gtk3 Branch*
+[**For Gtk2**]Please use [this](https://github.com/kugel-/geanypy/tree/proxy) *Keybindings*
 
-**You can get gtk2 as well gtk3 compatible codebase as well as keybinding support by default.**
+[**For Gtk3**]Please use [this](https://github.com/sagarchalise/geanypy/tree/proxy-gtk3) *Gtk3 Branch with keybindings*
 
 ####Installations
 
@@ -19,4 +19,4 @@ Please use [geanypy](https://github.com/sagarchalise/geanypy/tree/gtk3) *Gtk3 Br
 
 _geanypy library path may be `/usr/local/lib/geany/geanypy` OR `/usr/lib/geany/geanypy` based on installation._
 
-* Install geanypy-emmet.py and editor.js on `$HOME/.config/geany/plugins/geanypy/plugins` OR `/your_geany_config_path/plugins/geanypy/plugins`
+* Install *editor.js* and *geanypy-emmet.py* in system geany plugin path [/usr/local/lib/geany]
