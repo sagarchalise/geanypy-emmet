@@ -23,8 +23,11 @@ After  cloning the repository, from inside the repository do:
 ###Python PAths
 
 Recommended is **geany config path** which is $HOME/.config/geany/plugins.
+
 OR use geanypy installation path which may be `/usr/local/lib/geany/geanypy` OR `/usr/lib/geany/geanypy`.
+
 OR use python site-packages path
+
 [NOTE: You can find python site-packages path by following command]
     `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
 
