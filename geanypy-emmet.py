@@ -165,7 +165,9 @@ class EmmetPlugin(geany.Plugin):
     def populate_menu(self):
         imenu = Gtk.Menu()
         # Proxy keybinding [has errors]
-        emmet_key = self.set_key_group("emmet", len(actions), self.on_key_activate)
+        emmet_key = None
+        if hasattr(self, 'set_key_group'):
+            emmet_key = self.set_key_group("emmet", len(actions), self.on_key_activate)
         key_code = 0
         for label in create_action_label():
             menu_item = Gtk.MenuItem(label)
