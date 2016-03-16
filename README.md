@@ -17,10 +17,10 @@ After  cloning the repository, from inside the repository do:
     `git submodule init`
     `git submodule update`
 
-* then copy `emmet` from `emmet_base` folder  in any of the python paths.
-* Also install [PyV8](https://github.com/emmetio/pyv8-binaries) in python paths.
+* then copy `emmet` from `emmet_base` folder in one of the python paths.
+* Also install [PyV8](https://github.com/emmetio/pyv8-binaries) in one of the python paths.
 
-###Python PAths
+###Python Paths
 
 Recommended is **geany config path** which is $HOME/.config/geany/plugins.
 
@@ -32,4 +32,4 @@ OR use python site-packages path
     `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
 
 
-* Install *editor.js* and *geanypy-emmet.py* in system geany plugin path [/usr/local/lib/geany] or config path  i.e $HOME/.config/geany/plugins
+* Install *editor.js* and *geanypy-emmet.py* in geany config path OR system geany plugin path [/usr/local/lib/geany]
