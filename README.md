@@ -10,21 +10,27 @@ Plugin Base taken from https://github.com/sergeche/emmet-sublime which is used a
 [**For Gtk2**]Please use [this](https://github.com/kugel-/geanypy/tree/proxy) *Keybindings* [Included in latest geany-plugins]
 
 [**For Gtk3**]Please use [this](https://github.com/sagarchalise/geanypy/tree/proxy-gtk3) *Gtk3 Branch with keybindings*
+[**Only applicable if you have installed `geany` building it yourself with `--enable-gtk3` flag.**]
 
 ####Installations
+Clone the repository somewhere feasible. [Any place will do]
+
+* Copy/Install *editor.js* and *geanypy-emmet.py* in [*Geany Plugin Path*](#geany-plugin-path)
+
 After  cloning the repository, from inside the repository do:
 
     `git submodule init`
     `git submodule update`
 
-* then copy `emmet` from `emmet_base` folder in one of the python paths.
-* Also install [PyV8](https://github.com/emmetio/pyv8-binaries) in one of the python paths.
+* then copy `emmet` from `emmet_base` folder in one of the [*Python Paths*](#python-paths).
+* Also install python2 [PyV8](https://github.com/emmetio/pyv8-binaries) binaries compatible to your OS in one of the [*Python Paths*](#python-paths).
 
-###Python Paths
+## Geany Plugin Path
+    Any of `$HOME/.config/geany/plugins`(Recommended) or `/usr/lib/geany` or `/usr/local/lib/geany`
 
-Recommended is **geany config path** which is $HOME/.config/geany/plugins.
+## Python Paths
 
-OR use geanypy installation path which may be `/usr/local/lib/geany/geanypy` OR `/usr/lib/geany/geanypy`.
+You can use [Geany Plugin Path](#geany-plugin-path) OR `geanypy` base path
 
 OR use python site-packages path
 
@@ -32,4 +38,4 @@ OR use python site-packages path
     `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
 
 
-* Install *editor.js* and *geanypy-emmet.py* in geany config path OR system geany plugin path [/usr/local/lib/geany]
+
