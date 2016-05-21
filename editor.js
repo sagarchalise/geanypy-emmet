@@ -4,6 +4,7 @@ var resources = emmet.resources;
 var actionUtils = emmet.utils.action;
 var editorUtils = emmet.utils.editor;
 var htmlMatcher = emmet.htmlMatcher;
+var tabStops = emmet.tabStops;
 
 function pySetupEditorProxy() {
     editorProxy._syntax = cur_doc_type;
@@ -80,6 +81,7 @@ var editorProxy = {
 	}
 	var scintilla = getScintilla();
 	scintilla.replace_sel("");
+    value = pyPreprocessText(value);
     value = editorUtils.normalize(value);
 	cur_doc.editor.insert_snippet(start, value);
     },
@@ -119,6 +121,23 @@ var editorProxy = {
 	}
     },
 };
+
+function pyPreprocessText(value) {
+	var tabstopOptions = {
+		tabstop: function(data){
+			var placeholder = data.placeholder;
+			if (placeholder) {
+				// recursively update nested tabstops
+				placeholder = tabStops.processText(placeholder, tabstopOptions);
+			}
+            return placeholder;
+
+		},
+	};
+	value = tabStops.processText(value, tabstopOptions);
+
+	return value;
+}
 
 function pyDetectProfile() {
     return actionUtils.detectProfile(editorProxy);
