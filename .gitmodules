@@ -1,3 +1,3 @@
 [submodule "emmet_base"]
 	path = emmet_base
-	url = git@github.com:sergeche/emmet-sublime.git
+	url = https://github.com/sergeche/emmet-sublime.git

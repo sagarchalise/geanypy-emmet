@@ -2,6 +2,7 @@ var utils = emmet.utils.common;
 var actions = emmet.require('action/main.js');
 var resources = emmet.resources;
 var actionUtils = emmet.utils.action;
+var editorUtils = emmet.utils.editor;
 var htmlMatcher = emmet.htmlMatcher;
 
 function pySetupEditorProxy() {
@@ -79,6 +80,7 @@ var editorProxy = {
 	}
 	var scintilla = getScintilla();
 	scintilla.replace_sel("");
+    value = editorUtils.normalize(value);
 	cur_doc.editor.insert_snippet(start, value);
     },
     getContent: function() {
@@ -118,6 +120,6 @@ var editorProxy = {
     },
 };
 
-function pyDetectProfile(syntax) {
-    return actionUtils.detectProfile(editorProxy, syntax);
+function pyDetectProfile() {
+    return actionUtils.detectProfile(editorProxy);
 }
