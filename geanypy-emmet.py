@@ -145,7 +145,7 @@ class EmmetPlugin(geany.Plugin):
             menubar.append(self.specific_menu)
 
     def on_document_notify(self, user_data, doc):
-        self.check_filetype_and_get_contrib()
+        self.check_filetype_and_get_contrib(doc)
 
     def check_editor_menu(self):
         if not self.editor_menu and self.show_editor_menu:
@@ -271,7 +271,7 @@ class EmmetPlugin(geany.Plugin):
 
     def on_editor_notify(self, g_obj, editor, nt):
         if self.highlight_tag:
-            contrib = self.check_filetype_and_get_contrib(("PHP", "HTML", "XML"))
+            contrib = self.check_filetype_and_get_contrib(editor.document)
             if contrib:
                 notification_codes = (geany.scintilla.UPDATE_UI, geany.scintilla.KEY)
                 if nt.nmhdr.code in notification_codes:
