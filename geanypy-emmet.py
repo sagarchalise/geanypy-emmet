@@ -70,7 +70,7 @@ class EmmetPlugin(geany.Plugin):
         self.load_config()
         self.check_main_menu()
         self.check_editor_menu()
-        signals = ('document-reload', 'document-save', 'document-activate', 'document-close')
+        signals = ('document-reload', 'document-save', 'document-activate', 'document-close', 'document-open')
         for signal in signals:
             geany.signals.connect(signal, self.on_document_notify)
         geany.signals.connect("editor-notify", self.on_editor_notify)
@@ -82,7 +82,6 @@ class EmmetPlugin(geany.Plugin):
             self.specific_menu.destroy()
         else:
             self.tools_menu.destroy()
-
 
     def load_config(self):
         self.cfg_path = os.path.join(geany.app.configdir, "plugins", "pyemmet.conf")
@@ -101,6 +100,7 @@ class EmmetPlugin(geany.Plugin):
         imenu = self.populate_menu()
         self.tools_menu.set_submenu(imenu)
         self.tools_menu.show()
+        self.set_menu_sensitivity()
         geany.main_widgets.tools_menu.append(self.tools_menu)
 
     def set_editor_menu(self):
@@ -114,8 +114,16 @@ class EmmetPlugin(geany.Plugin):
             imenu.append(menu_item)
         self.editor_menu.set_submenu(imenu)
         self.editor_menu.show()
+        self.set_menu_sensitivity()
         geany.main_widgets.editor_menu.append(self.editor_menu)
 
+    def set_menu_sensitivity(self, flag=False):
+        if self.editor_menu:
+            self.editor_menu.set_sensitive(flag)
+        if self.specific_menu:
+            self.specific_menu.set_sensitive(flag)
+        if self.tools_menu:
+            self.tools_menu.set_sensitive(flag)
 
     @staticmethod
     def get_geany_menubar():
@@ -131,7 +139,7 @@ class EmmetPlugin(geany.Plugin):
         self.specific_menu.set_submenu(imenu)
         self.specific_menu.show()
         menubar = self.get_geany_menubar()
-        self.specific_menu.set_sensitive(False)
+        self.set_menu_sensitivity()
         if menubar:
             menubar.append(self.specific_menu)
 
@@ -237,14 +245,15 @@ class EmmetPlugin(geany.Plugin):
         cur_doc = doc or geany.document.get_current()
         cur_file_type = cur_doc.file_type.name if cur_doc else None
         if cur_file_type in self.file_types:
-            if self.specific_menu:
-                self.specific_menu.set_sensitive(True)
+            self.set_menu_sensitivity(True)
             return {
                 'cur_doc': cur_doc,
                 'cur_doc_type': cur_file_type.lower() if cur_file_type != 'PHP' else 'html',
                 'prompt': self.prompt,
                 'geanyIndicatorSearch': geany.editor.INDICATOR_SEARCH,
             }
+        else:
+            self.set_menu_sensitivity()
 
     @staticmethod
     def run_emmet_action(action, contrib):
