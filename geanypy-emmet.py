@@ -254,11 +254,17 @@ class EmmetPlugin(geany.Plugin):
         cur_doc = doc or geany.document.get_current()
         cur_file_type = cur_doc.file_type.name if cur_doc else None
         if cur_file_type in self.file_types:
+            sel = cur_doc.editor.scintilla.get_selection_contents() or ''
+            content = cur_doc.editor.scintilla.get_contents(-1) or  ''
             self.set_menu_sensitivity(True)
             return {
                 'cur_doc': cur_doc,
                 'cur_doc_type': cur_file_type.lower() if cur_file_type != 'PHP' else 'html',
                 'prompt': self.prompt,
+                'cur_content':  content,
+                'cur_selection': sel,
+                'tab_used': cur_doc.editor.indent_prefs.type == geany.editor.INDENT_TYPE_TABS,
+                'tab_width': cur_doc.editor.indent_prefs.width,
                 'geanyIndicatorSearch': geany.editor.INDICATOR_SEARCH,
             }
         else:
