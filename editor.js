@@ -121,8 +121,8 @@ var editorProxy = {
             var start = range.start;
             var stop = range.end;
             if(i == 1){
-            start += 1;
-            stop -= 1;
+                start += 1;
+                stop -= 1;
             }
             cur_doc.editor.indicator_set_on_range(geanyIndicators[i], start, stop);
         }
