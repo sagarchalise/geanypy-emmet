@@ -25,15 +25,13 @@ After  cloning the repository, from inside the repository do:
 * then copy `emmet` from `emmet_base` folder in one of the [*Python Paths*](#python-paths).
 * Also install python2 [PyV8](https://github.com/emmetio/pyv8-binaries) binaries compatible to your OS in one of the [*Python Paths*](#python-paths).
 
-#### Geany Plugin Path
-**use any one path**
+#### Geany Plugin Path [*use any one path*]
     
 * `$HOME/.config/geany/plugins`(Recommended)
 * `/usr/lib/geany`
 * `/usr/local/lib/geany`
 
-#### Python Paths
-**use any one path**
+#### Python Paths [*use any one path*]
 
 * [Geany Plugin Path](#geany-plugin-path)
 * `geanypy` base path
