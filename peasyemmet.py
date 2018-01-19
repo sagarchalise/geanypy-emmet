@@ -1,8 +1,10 @@
 import os
-from ConfigParser import SafeConfigParser
+from configparser import SafeConfigParser
 from gettext import gettext as _
 from gi.repository import Gtk, GObject
-import geany
+from gi.repository import Geany
+from gi.repository import GeanyScintilla
+from gi.repository import Peasy
 from emmet.context import Context
 
 def makedir(path):
@@ -52,12 +54,9 @@ def create_action_label():
 
 actions_dict = dict(zip([label for label in create_action_label()], actions))
 
-class EmmetPlugin(geany.Plugin):
-    __plugin_name__ = _('Emmet')
-    __plugin_version__ = _('0.1')
-    __plugin_description__ = _('Emmet Plugin for geany.')
-    __plugin_author__ = _('Sagar Chalise <chalisesagar@gmail.com>')
-    indicators = (geany.editor.INDICATOR_SEARCH, 1)
+class EmmetPlugin(Peasy.Plugin, Peasy.PluginConfigure):
+    __gtype_name__ = "Emmet"
+    indicators = (Geany.Indicator.SEARCH, 1)
     file_types = ('HTML', 'PHP', 'XML', 'CSS')
     __highlight_tag = False
     __show_editor_menu = False
@@ -66,16 +65,17 @@ class EmmetPlugin(geany.Plugin):
     specific_menu = None
     tools_menu = None
 
-    def __init__(self):
+    def do_enable(self):
+        o = self.geany_plugin.geany_data.object
         self.load_config()
         self.check_main_menu()
         self.check_editor_menu()
         signals = ('document-reload', 'document-save', 'document-activate', 'document-close', 'document-open')
         for signal in signals:
-            geany.signals.connect(signal, self.on_document_notify)
-        geany.signals.connect("editor-notify", self.on_editor_notify)
+            o.connect(signal, self.on_document_notify)
+        o.connect("editor-notify", self.on_editor_notify)
 
-    def cleanup(self):
+    def do_disable(self):
         if self.show_editor_menu and self.editor_menu:
             self.editor_menu.destroy()
         if self.show_specific_menu and self.specific_menu:
@@ -84,7 +84,7 @@ class EmmetPlugin(geany.Plugin):
             self.tools_menu.destroy()
 
     def load_config(self):
-        self.cfg_path = os.path.join(geany.app.configdir, "plugins", "pyemmet.conf")
+        self.cfg_path = os.path.join(self.geany_plugin.geany_data.app.configdir, "plugins", "pyemmet.conf")
         self.cfg = SafeConfigParser()
         self.cfg.read(self.cfg_path)
 
@@ -101,7 +101,7 @@ class EmmetPlugin(geany.Plugin):
         self.tools_menu.set_submenu(imenu)
         self.tools_menu.show()
         self.set_menu_sensitivity()
-        geany.main_widgets.tools_menu.append(self.tools_menu)
+        self.geany_plugin.geany_data.main_widgets.tools_menu.append(self.tools_menu)
 
     def set_editor_menu(self):
         indexes = (0, 3, 9)
@@ -115,7 +115,7 @@ class EmmetPlugin(geany.Plugin):
         self.editor_menu.set_submenu(imenu)
         self.editor_menu.show()
         self.set_menu_sensitivity()
-        geany.main_widgets.editor_menu.append(self.editor_menu)
+        self.geany_plugin.geany_data.main_widgets.editor_menu.append(self.editor_menu)
 
     def set_menu_sensitivity(self, flag=False):
         if self.editor_menu:
@@ -126,10 +126,11 @@ class EmmetPlugin(geany.Plugin):
             self.tools_menu.set_sensitive(flag)
 
     @staticmethod
-    def get_geany_menubar():
+    def get_geany_menubar(main_widget_window):
         """ Very hackish  way to get menubar. """
-        #m = geany.ui_utils.lookup_widget(geany.main_widgets.window, 'meubar1')
-        m = geany.main_widgets.window.get_child().get_children()[0].get_children()[0]
+        m = Geany.ui_lookup_widget(main_widget_window, 'menubar1')
+        #  geany.ui_utils.lookup_widget(geany.main_widgets.window, 'meubar1')
+        #  m = geany.main_widgets.window.get_child().get_children()[0].get_children()[0]
         if isinstance(m, Gtk.MenuBar):
             return m
 
@@ -138,7 +139,7 @@ class EmmetPlugin(geany.Plugin):
         imenu = self.populate_menu()
         self.specific_menu.set_submenu(imenu)
         self.specific_menu.show()
-        menubar = self.get_geany_menubar()
+        menubar = self.get_geany_menubar(self.geany_plugin.geany_data.main_widgets.window)
         self.set_menu_sensitivity()
         if menubar:
             menubar.append(self.specific_menu)
@@ -150,7 +151,7 @@ class EmmetPlugin(geany.Plugin):
         if not self.editor_menu and self.show_editor_menu:
             self.set_editor_menu()
         elif not self.show_editor_menu and self.editor_menu:
-            geany.main_widgets.editor_menu.remove(self.editor_menu)
+            self.geany_plugin.geany_data.main_widgets.editor_menu.remove(self.editor_menu)
             self.editor_menu.destroy()
             self.editor_menu = None
 
@@ -158,12 +159,12 @@ class EmmetPlugin(geany.Plugin):
         if not self.specific_menu and self.show_specific_menu:
             self.set_specific_menu()
             if self.tools_menu:
-                geany.main_widgets.tools_menu.remove(self.tools_menu)
+                self.geany_plugin.geany_data.main_widgets.tools_menu.remove(self.tools_menu)
                 self.tools_menu.destroy()
                 self.tools_menu = None
         elif not self.show_specific_menu and self.specific_menu:
             self.set_tools_menu()
-            mb = self.get_geany_menubar()
+            mb = self.get_geany_menubar(self.geany_plugin.geany_data.main_widgets.window)
             if mb:
                 mb.remove(self.specific_menu)
             self.specific_menu.destroy()
@@ -237,16 +238,16 @@ class EmmetPlugin(geany.Plugin):
 
     @staticmethod
     def prompt(title):
-        abbr = geany.dialogs.show_input(_(title), geany.main_widgets.window, None, None)
+        abbr = Geany.dialog_show_input(_(title), None, None)
         return abbr
 
 
     def check_filetype_and_get_contrib(self, doc=None):
-        cur_doc = doc or geany.document.get_current()
+        cur_doc = doc or Geany.Document.get_current()
         cur_file_type = cur_doc.file_type.name if cur_doc else None
         if cur_file_type in self.file_types:
-            sel = geany.encoding.convert_to_utf8(cur_doc.editor.scintilla.get_selection_contents(), -1)
-            content = geany.encoding.convert_to_utf8(cur_doc.editor.scintilla.get_contents(-1), -1)
+            sel = Geany.encodings_convert_to_utf8(cur_doc.editor.sci.get_selection_contents(), -1)
+            content = Geany.encodings_convert_to_utf8(cur_doc.editor.sci.get_contents(-1), -1)
             self.set_menu_sensitivity(True)
             return {
                 'cur_doc': cur_doc,
@@ -254,9 +255,9 @@ class EmmetPlugin(geany.Plugin):
                 'prompt': self.prompt,
                 'cur_content':  content[0],
                 'cur_selection': sel[0],
-                'tab_used': cur_doc.editor.indent_prefs.type == geany.editor.INDENT_TYPE_TABS,
-                'tab_width': cur_doc.editor.indent_prefs.width,
-                'geanyIndicatorSearch': geany.editor.INDICATOR_SEARCH,
+                'tab_used': cur_doc.editor.indent_type == Geany.IndentType.TABS,
+                'tab_width': cur_doc.editor.indent_width,
+                'geanyIndicatorSearch': Geany.Indicator.SEARCH,
             }
         else:
             self.set_menu_sensitivity()
@@ -280,7 +281,7 @@ class EmmetPlugin(geany.Plugin):
         if self.highlight_tag:
             contrib = self.check_filetype_and_get_contrib(editor.document)
             if contrib:
-                notification_codes = (geany.scintilla.UPDATE_UI, geany.scintilla.KEY)
+                notification_codes = (GeanyScintilla.SCN_UPDATEUI, GeanyScintilla.SCN_KEY)
                 if nt.nmhdr.code in notification_codes:
                     for indicator in self.indicators:
                         editor.indicator_clear(indicator)
@@ -290,7 +291,7 @@ class EmmetPlugin(geany.Plugin):
                 editor.indicator_clear(indicator)
 
     def on_highlight_tag_toggled(self, chk_btn, data=None):
-		self.highlight_tag = chk_btn.get_active()
+        self.highlight_tag = chk_btn.get_active()
 
     def on_editor_menu_toggled(self, chk_btn, data=None):
         self.show_editor_menu = chk_btn.get_active()

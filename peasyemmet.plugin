@@ -1,0 +1,7 @@
+[Plugin]
+Module=peasyemmet
+Loader=python3
+Name=Peasy Emmet
+Description=Emmet Plugin based on peasy. 
+Authors=Sagar Chalise <chalisesagar@gmail.com>
+X-Peasy-API=228
