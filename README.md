@@ -1,3 +1,5 @@
+NOTE: There is [geany-emmet](https://github.com/sagarchalise/geany-emmet) plugin which will move with the development. It is currently based on `mozjs-52` tested on debian and ubuntu.
+
 geanypy-emmet
 =============
 
